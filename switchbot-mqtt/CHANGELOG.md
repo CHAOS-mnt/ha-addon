@@ -1,5 +1,41 @@
 # CHANGELOG
 
+## v1.0.62 - 2026-05-05
+- Made image fetch retry behavior configurable via `ImageFetch` options.
+    - `ImageFetch:MaxRetries` (default: `25`): Maximum number of retry attempts when a presigned image URL returns a 404 response.
+    - `ImageFetch:RetryIntervalMs` (default: `1000`): Interval in milliseconds between retry attempts.
+- [How to set up Browser Push Notifications with Thumbnails for SwitchBot Doorbell/Cameras (via HTML5 Notification)  Discussion #116](https://github.com/hsakoh/switchbot-mqtt/discussions/116)
+    
+## v1.0.61 - 2026-04-17
+- Added `ExitOnServiceFailure` option (default: `false`).
+    - When enabled, the application exits if any service (MQTT, Polling, or Webhook) enters a failed state, allowing the Home Assistant Supervisor's watchdog to handle automatic restart.
+
+## v1.0.60 - 2026-04-14
+- Added support for nested webhook payloads in camera devices (e.g., `motionEvent`, `ringEvent` inside the `context` field).
+    - Introduced `WebhookParentKey` in field definitions to extract fields from nested objects.
+    - Introduced `IsImage` flag in field definitions for fields that carry presigned image URLs.
+- Added MQTT Image entity support (Home Assistant `image` type via MQTT Discovery).
+    - Image fields (e.g., `motionImageUrl`) are downloaded from presigned S3 URLs and published as Base64-encoded JPEG to a dedicated topic (`switchbot/{deviceId}/image/{fieldName}`).
+    - The URL itself is not stored in the state topic.
+    - Supported devices: Pan/Tilt Cam Plus, Video Doorbell.
+    - If you want to add the image entity to a device that is already registered, delete the device from the Ingress page and add it again.
+- Added missing fields to physical device definitions:
+    - CeilingLight, ColorBulb, PlugMiniJp: Added `online` webhook binary sensor field (connectivity).
+    - CirculatorFan: Added `chargingStatus` field.
+    - MotionSensor: Changed `brightness` field source from status-only to both (status + webhook).
+        - The `unique_id` for the `brightness` sensor will change. Please either delete the MQTT devices and restart the add-on or manually delete the old MQTT sensor (`status_brightness_{deviceId}`).
+    - If you want to add fields to a device that is already registered, delete the device from the Ingress page and add it again.
+
+## v1.0.59 - 2026-02-25
+- Fixed issue with RobotVacuumCleanerS20's selfClean command not working.
+
+## v1.0.58 - 2026-02-01
+- Fix an issue where startup could fail due to insufficient reserved virtual memory for the GC heap when a large number of CPU cores are allocated.
+
+## v1.0.57 - 2026-01-27
+- Changed the .NET runtime to explicitly define the virtual memory range reserved(but not used) for the GC heap.
+- This prevents the TOP command from showing an extremely large VIRT value.
+
 ## v1.0.56 - 2025-12-26
 - Upgrade ASP.NET runtime from version 8 to 10.
 - Changed to self-contained deployment.
